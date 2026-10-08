@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ملوك FC Mobile - بطولة الأسطورة</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Cairo -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        gold: {
+                            DEFAULT: '#D4AF37',
+                            light: '#F4E0A5',
+                            dark: '#AA7C11',
+                            glow: '#FFE55C'
+                        },
+                        light: {
+                            bg: '#F8FAFC',
+                            card: '#FFFFFF',
+                            border: '#E2E8F0',
+                            hover: '#F1F5F9'
+                        }
+                    },
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: #F8FAFC;
+            color: #1E293B;
+            overflow-x: hidden;
+        }
+        .gold-gradient-text {
+            background: linear-gradient(135deg, #AA7C11 0%, #D4AF37 50%, #B8860B 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .gold-card-glow {
+            box-shadow: 0 4px 20px -2px rgba(212, 175, 55, 0.15);
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #F1F5F9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #CBD5E1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #D4AF37;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col bg-light-bg text-slate-800 antialiased selection:bg-gold selection:text-white">
+
+    <header class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo & Brand -->
+                <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('matches')">
+                    <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-gold-dark via-gold to-gold-light flex items-center justify-center shadow-lg shadow-gold/20">
+                        <i class="fa-solid fa-trophy text-2xl text-white"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-xl sm:text-2xl font-black tracking-wide gold-gradient-text leading-tight">ملوك FC MOBILE</h1>
+                        <p class="text-xs text-slate-500 font-bold tracking-wider">بطولة الأساطير الرسمية</p>
+                    </div>
+                </div>
+
+                <!-- Admin Status Indicator & Share Link Button -->
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <button onclick="shareWebsiteLink()" class="px-3 py-2 rounded-xl text-xs sm:text-sm font-bold bg-emerald-50 text-emerald-600 hover:bg-emerald-100 border border-emerald-200 transition-all flex items-center gap-2 shadow-sm">
+                        <i class="fa-solid fa-share-nodes"></i>
+                        <span class="hidden sm:inline">رابط المشاركة</span>
+                    </button>
+                    
+                    <button id="adminAuthBtn" onclick="toggleAdminModal()" class="px-3 py-2 rounded-xl text-xs sm:text-sm font-bold border border-gold/50 bg-amber-50/50 text-gold-dark hover:bg-gold hover:text-white transition-all duration-300 flex items-center gap-2 shadow-sm">
+                        <i class="fa-solid fa-user-shield"></i>
+                        <span id="adminBtnText">دخول الأدمن</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Navigation Tabs Bar -->
+            <nav class="flex space-x-2 space-x-reverse overflow-x-auto custom-scrollbar py-2 border-t border-slate-100 text-xs sm:text-sm">
+                <button id="tab-matches" onclick="switchTab('matches')" class="tab-btn active-tab px-4 py-2 rounded-lg font-bold whitespace-nowrap transition-all duration-200 flex items-center gap-2 text-gold border-b-2 border-gold">
+                    <i class="fa-solid fa-gamepad"></i> جدول المباريات
+                </button>
+                <button id="tab-standings" onclick="switchTab('standings')" class="tab-btn px-4 py-2 rounded-lg font-bold whitespace-nowrap transition-all duration-200 text-slate-500 hover:text-gold flex items-center gap-2">
+                    <i class="fa-solid fa-list-ol"></i> جدول الترتيب
+                </button>
+                <button id="tab-scorers" onclick="switchTab('scorers')" class="tab-btn px-4 py-2 rounded-lg font-bold whitespace-nowrap transition-all duration-200 text-slate-500 hover:text-gold flex items-center gap-2">
+                    <i class="fa-solid fa-football"></i> قائمة الهدافين
+                </button>
+                <!-- Admin Only Tabs -->
+                <button id="tab-draw" onclick="switchTab('draw')" class="tab-btn admin-only-tab px-4 py-2 rounded-lg font-bold whitespace-nowrap transition-all duration-200 text-slate-500 hover:text-gold items-center gap-2 hidden">
+                    <i class="fa-solid fa-dice text-gold"></i> إجراء القرعة (أدمن)
+                </button>
+                <button id="tab-players" onclick="switchTab('players')" class="tab-btn admin-only-tab px-4 py-2 rounded-lg font-bold whitespace-nowrap transition-all duration-200 text-slate-500 hover:text-gold items-center gap-2 hidden">
+                    <i class="fa-solid fa-users-gear"></i> إدارة اللاعبين (أدمن)
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- Matches View -->
+        <section id="view-matches" class="tab-content block">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                <div>
+                    <h2 class="text-2xl font-black gold-gradient-text flex items-center gap-2">
+                        <i class="fa-solid fa-calendar-alt text-gold"></i> جدول ونتائج المباريات
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-500 font-semibold">متابعة كافة المواجهات والنتائج المحدثة تلقائياً</p>
+                </div>
+                <!-- Filter rounds dropdown -->
+                <div class="flex items-center gap-2">
+                    <label class="text-xs text-slate-500 font-bold whitespace-nowrap">تصفية الجولات:</label>
+                    <select id="roundFilterSelect" onchange="renderMatches()" class="bg-white border border-slate-300 text-sm rounded-xl px-3 py-2 text-slate-700 font-bold focus:outline-none focus:border-gold shadow-sm">
+                        <option value="ALL">جميع الجولات / الأدوار</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Matches List Container -->
+            <div id="matchesContainer" class="space-y-6">
+                <!-- JavaScript rendered match cards -->
+            </div>
+        </section>
+
+        <!-- Standings View -->
+        <section id="view-standings" class="tab-content hidden">
+            <div class="mb-6">
+                <h2 class="text-2xl font-black gold-gradient-text flex items-center gap-2">
+                    <i class="fa-solid fa-ranking-star text-gold"></i> جدول ترتيب الفرق
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-500 font-semibold">الترتيب يعتمد على: النقاط ثم المواجهات المباشرة ثم فارق الأهداف</p>
+            </div>
+
+            <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-md">
+                <div class="overflow-x-auto custom-scrollbar">
+                    <table class="w-full text-right text-sm">
+                        <thead class="bg-slate-50 text-xs font-bold uppercase text-slate-600 border-b border-slate-200">
+                            <tr>
+                                <th class="p-4 text-center">#</th>
+                                <th class="p-4">اللاعب / الفريق</th>
+                                <th class="p-4 text-center">تواصل</th>
+                                <th class="p-4 text-center">لعب</th>
+                                <th class="p-4 text-center">فوز</th>
+                                <th class="p-4 text-center">تعادل</th>
+                                <th class="p-4 text-center">خسارة</th>
+                                <th class="p-4 text-center hidden sm:table-cell">له</th>
+                                <th class="p-4 text-center hidden sm:table-cell">عليه</th>
+                                <th class="p-4 text-center">الفارق</th>
+                                <th class="p-4 text-center text-base font-black text-gold-dark">النقاط</th>
+                            </tr>
+                        </thead>
+                        <tbody id="standingsTableBody" class="divide-y divide-slate-100">
+                            <!-- Rendered by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Top Scorers View -->
+        <section id="view-scorers" class="tab-content hidden">
+            <div class="mb-6">
+                <h2 class="text-2xl font-black gold-gradient-text flex items-center gap-2">
+                    <i class="fa-solid fa-fire text-gold"></i> قائمة هدافي البطولة
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-500 font-semibold">ترتيب الأكثر تسجيلاً للأهداف في المسابقة</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Top 3 Podium Cards -->
+                <div id="scorersPodium" class="md:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-4 mb-2">
+                    <!-- Rendered by JS -->
+                </div>
+
+                <!-- Full Scorers Table -->
+                <div class="md:col-span-3 bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-md">
+                    <table class="w-full text-right text-sm">
+                        <thead class="bg-slate-50 text-xs font-bold uppercase text-slate-600 border-b border-slate-200">
+                            <tr>
+                                <th class="p-4 text-center">المركز</th>
+                                <th class="p-4">اسم الهداف</th>
+                                <th class="p-4 text-center">الأهداف <i class="fa-solid fa-futbol text-gold mr-1"></i></th>
+                            </tr>
+                        </thead>
+                        <tbody id="scorersTableBody" class="divide-y divide-slate-100">
+                            <!-- Rendered by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Draw Setup View (Admin Only) -->
+        <section id="view-draw" class="tab-content hidden">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-black gold-gradient-text mb-2 flex items-center justify-center gap-3">
+                        <i class="fa-solid fa-dice-d20 text-gold text-4xl"></i> إعداد القرعة التلقائية (للأدمن)
+                    </h2>
+                    <p class="text-slate-500 text-sm font-semibold">اختر نوع القرعة ليقوم النظام بقرعة عشوائية كاملة وبناء كافة جدول المباريات</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Option 1: Round of 32 -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-6 hover:border-gold/50 shadow-sm transition-all duration-300 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-xs font-bold px-3 py-1 bg-amber-50 text-gold-dark rounded-full border border-gold/30">32 لاعب</span>
+                                <i class="fa-solid fa-sitemap text-2xl text-gold"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2 text-slate-800">قرعة دور الـ 32</h3>
+                            <p class="text-xs text-slate-500 mb-6 leading-relaxed">نظام خروج المغلوب ذهاب وإياب وصولاً إلى النهائي (النهائي مباراة واحدة).</p>
+                        </div>
+                        <button onclick="generateDraw('R32')" class="w-full py-3 rounded-xl bg-gradient-to-r from-gold-dark via-gold to-gold-light text-white font-extrabold shadow-md hover:opacity-95 transition-all">
+                            إجراء قرعة دور الـ 32 <i class="fa-solid fa-play text-xs mr-1"></i>
+                        </button>
+                    </div>
+
+                    <!-- Option 2: Round of 16 Playoffs -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-6 hover:border-gold/50 shadow-sm transition-all duration-300 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-xs font-bold px-3 py-1 bg-purple-50 text-purple-600 rounded-full border border-purple-200">الملحق</span>
+                                <i class="fa-solid fa-shield-halved text-2xl text-purple-600"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2 text-slate-800">ملحق دور الـ 16 (Playoffs)</h3>
+                            <p class="text-xs text-slate-500 mb-6 leading-relaxed">مواجهات حاسمة تمهيدية لتحديد الفرق المتأهلة لدور الـ 16 (ذهاب وإياب).</p>
+                        </div>
+                        <button onclick="generateDraw('PLAYOFFS')" class="w-full py-3 rounded-xl bg-purple-600 text-white font-extrabold hover:bg-purple-700 shadow-md transition-all">
+                            إجراء قرعة الملحق <i class="fa-solid fa-play text-xs mr-1"></i>
+                        </button>
+                    </div>
+
+                    <!-- Option 3: Round of 16 Knockout -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-6 hover:border-gold/50 shadow-sm transition-all duration-300 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-xs font-bold px-3 py-1 bg-blue-50 text-blue-600 rounded-full border border-blue-200">16 لاعب</span>
+                                <i class="fa-solid fa-diagram-next text-2xl text-blue-600"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2 text-slate-800">قرعة دور الـ 16 المباشر</h3>
+                            <p class="text-xs text-slate-500 mb-6 leading-relaxed">المواجهات المباشرة بداية من دور الـ 16 حتى النهائي (ذهاب وإياب عدا النهائي).</p>
+                        </div>
+                        <button onclick="generateDraw('R16')" class="w-full py-3 rounded-xl bg-blue-600 text-white font-extrabold hover:bg-blue-700 shadow-md transition-all">
+                            إجراء قرعة دور الـ 16 <i class="fa-solid fa-play text-xs mr-1"></i>
+                        </button>
+                    </div>
+
+                    <!-- Option 4: Full League System -->
+                    <div class="bg-white border border-slate-200 rounded-2xl p-6 hover:border-gold/50 shadow-sm transition-all duration-300 flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between mb-4">
+                                <span class="text-xs font-bold px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full border border-emerald-200">الكل ضد الكل</span>
+                                <i class="fa-solid fa-table-cells text-2xl text-emerald-600"></i>
+                            </div>
+                            <h3 class="text-xl font-bold mb-2 text-slate-800">قرعة الدوري الكامل (League)</h3>
+                            <p class="text-xs text-slate-500 mb-6 leading-relaxed">يتواجه جميع اللاعبين ذهاب وإياب في جدول منظّم بجميع الجولات.</p>
+                        </div>
+                        <button onclick="generateDraw('LEAGUE')" class="w-full py-3 rounded-xl bg-emerald-600 text-white font-extrabold hover:bg-emerald-700 shadow-md transition-all">
+                            إجراء قرعة الدوري <i class="fa-solid fa-play text-xs mr-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Player Management View (Admin Only) -->
+        <section id="view-players" class="tab-content hidden">
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+                <div>
+                    <h2 class="text-2xl font-black gold-gradient-text flex items-center gap-2">
+                        <i class="fa-solid fa-users-gear text-gold"></i> إدارة المشاركين (أدمن)
+                    </h2>
+                    <p class="text-xs sm:text-sm text-slate-500 font-semibold">إضافة وتعديل بيانات المتسابقين وأرقام الواتساب</p>
+                </div>
+                <button onclick="openPlayerModal()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-gold-dark via-gold to-gold-light text-white font-extrabold text-sm hover:opacity-95 transition-all flex items-center gap-2 shadow-md">
+                    <i class="fa-solid fa-user-plus"></i> إضافة لاعب جديد
+                </button>
+            </div>
+
+            <!-- Player Grid List -->
+            <div id="playersGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <!-- JS Populated Player Cards -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Admin Authentication Modal -->
+    <div id="adminModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white border border-gold/40 w-full max-w-md rounded-2xl p-6 shadow-2xl relative">
+            <button onclick="toggleAdminModal()" class="absolute top-4 left-4 text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 rounded-full bg-amber-50 border border-gold/30 text-gold-dark mx-auto flex items-center justify-center text-2xl mb-3 shadow-inner">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h3 class="text-xl font-bold text-slate-800">تسجيل دخول الأدمن</h3>
+                <p class="text-xs text-slate-500 mt-1 font-semibold">أدخل كلمة المرور لإدارة البطولة والتسجيل</p>
+            </div>
+            <form onsubmit="handleAdminLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">كلمة المرور:</label>
+                    <input type="password" id="adminPasswordInput" required placeholder="أدخل كلمة المرور" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-slate-800 text-center tracking-widest text-lg focus:outline-none focus:border-gold">
+                </div>
+                <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-gold-dark to-gold text-white font-bold hover:opacity-95 shadow-md">
+                    تأكيد الدخول
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Player Modal (Add/Edit) -->
+    <div id="playerModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white border border-slate-200 w-full max-w-md rounded-2xl p-6 shadow-2xl relative">
+            <button onclick="closePlayerModal()" class="absolute top-4 left-4 text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <h3 id="playerModalTitle" class="text-xl font-bold text-slate-800 mb-4 gold-gradient-text">إضافة لاعب جديد</h3>
+            
+            <form onsubmit="savePlayer(event)" class="space-y-4">
+                <input type="hidden" id="modalPlayerId">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">اسم اللاعب / المتسابق:</label>
+                    <input type="text" id="playerNameInput" required placeholder="مثال: أحمد الأسطورة" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-slate-800 focus:outline-none focus:border-gold text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">اسم الفريق / النادي:</label>
+                    <input type="text" id="playerTeamInput" required placeholder="مثال: ريال مدريد FC" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-slate-800 focus:outline-none focus:border-gold text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">رقم الواتساب (مع رمز الدولة بدون +):</label>
+                    <input type="text" id="playerPhoneInput" placeholder="مثال: 967770000000" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-slate-800 focus:outline-none focus:border-gold text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 mb-1">أيقونة / رمز تعبيري (Emoji):</label>
+                    <input type="text" id="playerAvatarInput" placeholder="👑 أو ⚡ أو ⚽" value="👑" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-slate-800 focus:outline-none focus:border-gold text-sm">
+                </div>
+                <div class="flex gap-3 pt-2">
+                    <button type="button" onclick="closePlayerModal()" class="w-1/2 py-2.5 rounded-xl bg-slate-100 border border-slate-200 text-slate-600 text-sm font-bold">إلغاء</button>
+                    <button type="submit" class="w-1/2 py-2.5 rounded-xl bg-gold text-white text-sm font-bold hover:bg-gold-dark shadow-sm">حفظ</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Match Score Entry Modal -->
+    <div id="matchModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-white border border-gold/40 w-full max-w-xl rounded-2xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <button onclick="closeMatchModal()" class="absolute top-4 left-4 text-slate-400 hover:text-slate-600">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <h3 class="text-xl font-bold text-slate-800 mb-1 text-center gold-gradient-text">تسجيل نتيجة المباراة</h3>
+            <p id="matchModalSub" class="text-xs text-slate-500 text-center mb-6 font-semibold">أدخل النتيجة ومسجلي الأهداف</p>
+
+            <form onsubmit="saveMatchResult(event)" class="space-y-6">
+                <input type="hidden" id="modalMatchId">
+
+                <!-- Score Board Controls -->
+                <div class="grid grid-cols-7 gap-2 items-center bg-slate-50 p-4 rounded-xl border border-slate-200">
+                    <!-- Home Team -->
+                    <div class="col-span-3 text-center">
+                        <div id="modalHomeAvatar" class="text-3xl mb-1">👑</div>
+                        <div id="modalHomeName" class="font-bold text-slate-800 text-sm truncate">الفريق 1</div>
+                        <div id="modalHomeTeam" class="text-xs text-slate-500 truncate">النادي</div>
+                        <input type="number" id="modalHomeScore" min="0" value="0" required class="w-16 h-12 text-center bg-white border border-gold/50 rounded-xl font-black text-2xl text-gold-dark mt-2 focus:outline-none shadow-sm">
+                    </div>
+
+                    <!-- VS -->
+                    <div class="col-span-1 text-center font-black text-slate-400 text-sm">VS</div>
+
+                    <!-- Away Team -->
+                    <div class="col-span-3 text-center">
+                        <div id="modalAwayAvatar" class="text-3xl mb-1">🔥</div>
+                        <div id="modalAwayName" class="font-bold text-slate-800 text-sm truncate">الفريق 2</div>
+                        <div id="modalAwayTeam" class="text-xs text-slate-500 truncate">النادي</div>
+                        <input type="number" id="modalAwayScore" min="0" value="0" required class="w-16 h-12 text-center bg-white border border-gold/50 rounded-xl font-black text-2xl text-gold-dark mt-2 focus:outline-none shadow-sm">
+                    </div>
+                </div>
+
+                <!-- Scorers Inputs Section -->
+                <div class="space-y-4">
+                    <h4 class="text-xs font-bold text-gold-dark uppercase tracking-wider border-b border-slate-200 pb-2">
+                        <i class="fa-solid fa-futbol mr-1"></i> مسجلو الأهداف (اختياري)
+                    </h4>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <!-- Home Scorers List -->
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <label class="block text-xs font-bold text-slate-700 mb-2 truncate" id="homeScorerLabel">مسجلو الفريق الأول</label>
+                            <div id="homeScorersContainer" class="space-y-2">
+                                <!-- Dynamic scorer rows -->
+                            </div>
+                            <button type="button" onclick="addScorerRow('home')" class="mt-2 text-xs text-gold-dark font-bold hover:underline flex items-center gap-1">
+                                <i class="fa-solid fa-plus-circle"></i> إضافة مسجل هدف
+                            </button>
+                        </div>
+
+                        <!-- Away Scorers List -->
+                        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                            <label class="block text-xs font-bold text-slate-700 mb-2 truncate" id="awayScorerLabel">مسجلو الفريق الثاني</label>
+                            <div id="awayScorersContainer" class="space-y-2">
+                                <!-- Dynamic scorer rows -->
+                            </div>
+                            <button type="button" onclick="addScorerRow('away')" class="mt-2 text-xs text-gold-dark font-bold hover:underline flex items-center gap-1">
+                                <i class="fa-solid fa-plus-circle"></i> إضافة مسجل هدف
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="flex gap-3">
+                    <button type="button" onclick="closeMatchModal()" class="w-1/2 py-3 rounded-xl bg-slate-100 border border-slate-200 text-slate-600 text-sm font-bold">إلغاء</button>
+                    <button type="submit" class="w-1/2 py-3 rounded-xl bg-gradient-to-r from-gold-dark to-gold text-white text-sm font-extrabold hover:opacity-95 shadow-md">حفظ النتيجة</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-5 left-5 z-50 bg-slate-800 text-white px-5 py-3 rounded-xl shadow-2xl flex items-center gap-3 transform translate-y-20 opacity-0 transition-all duration-300">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-gold text-lg"></i>
+        <span id="toastMsg" class="text-sm font-bold">تمت العملية بنجاح</span>
+    </div>
+
+    <script>
+        // Updated Admin Password Hash / Plain Match
+        const ADMIN_PASSWORD_HASH = '774541324';
+
+        // Default Mock Players
+        const DEFAULT_PLAYERS = [
+            { id: '1', name: 'أحمد الملك', team: 'Real Madrid', phone: '967770000001', avatar: '👑' },
+            { id: '2', name: 'عمر الأسطورة', team: 'FC Barcelona', phone: '967770000002', avatar: '⚡' },
+            { id: '3', name: 'خالد الفتاك', team: 'Manchester City', phone: '967770000003', avatar: '🔥' },
+            { id: '4', name: 'سارة الدون', team: 'Bayern Munich', phone: '967770000004', avatar: '🦁' },
+            { id: '5', name: 'محمد الصقر', team: 'Liverpool', phone: '967770000005', avatar: '🦅' },
+            { id: '6', name: 'يوسف العاصفة', team: 'Paris Saint-Germain', phone: '967770000006', avatar: '🌪️' },
+            { id: '7', name: 'حمزة النجم', team: 'Arsenal', phone: '967770000007', avatar: '⭐' },
+            { id: '8', name: 'كريم الجوكر', team: 'Inter Milan', phone: '967770000008', avatar: '🃏' }
+        ];
+
+        let players = JSON.parse(localStorage.getItem('fcm_players')) || DEFAULT_PLAYERS;
+        let matches = JSON.parse(localStorage.getItem('fcm_matches')) || [];
+        let scorersData = JSON.parse(localStorage.getItem('fcm_scorers')) || {};
+        let isAdminLoggedIn = localStorage.getItem('fcm_admin_auth') === 'true';
+
+        // Window Load Handler
+        window.onload = function() {
+            updateAdminUI();
+            renderPlayers();
+            if (matches.length === 0) {
+                generateDraw('LEAGUE', true);
+            } else {
+                populateRoundFilter();
+                renderMatches();
+            }
+        };
+
+        function saveState() {
+            localStorage.setItem('fcm_players', JSON.stringify(players));
+            localStorage.setItem('fcm_matches', JSON.stringify(matches));
+            localStorage.setItem('fcm_scorers', JSON.stringify(scorersData));
+        }
+
+        function showToast(msg, icon = 'fa-circle-check') {
+            const toast = document.getElementById('toast');
+            const toastMsg = document.getElementById('toastMsg');
+            const toastIcon = document.getElementById('toastIcon');
+            
+            toastMsg.innerText = msg;
+            toastIcon.className = `fa-solid ${icon} text-gold text-lg`;
+            
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        function shareWebsiteLink() {
+            const url = window.location.href;
+            let copied = false;
+
+            try {
+                const tempTextArea = document.createElement('textarea');
+                tempTextArea.value = url;
+                tempTextArea.style.position = 'fixed';
+                tempTextArea.style.top = '0';
+                tempTextArea.style.left = '-9999px';
+                document.body.appendChild(tempTextArea);
+                tempTextArea.focus();
+                tempTextArea.select();
+                tempTextArea.setSelectionRange(0, 99999);
+
+                copied = document.execCommand('copy');
+                document.body.removeChild(tempTextArea);
+            } catch (e) {
+                copied = false;
+            }
+
+            if (copied) {
+                showToast('تم نسخ رابط البطولة لمشاركته مع المتسابقين! 🔗');
+            } else {
+                window.prompt('قم بنسخ رابط الموقع للمشاركة:', url);
+            }
+        }
+
+        const copyShareableLink = shareWebsiteLink;
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active-tab', 'text-gold', 'border-b-2', 'border-gold');
+                btn.classList.add('text-slate-500');
+            });
+
+            const targetView = document.getElementById(`view-${tabId}`);
+            const targetTabBtn = document.getElementById(`tab-${tabId}`);
+
+            if (targetView) targetView.classList.remove('hidden');
+            if (targetTabBtn) {
+                targetTabBtn.classList.add('active-tab', 'text-gold', 'border-b-2', 'border-gold');
+                targetTabBtn.classList.remove('text-slate-500');
+            }
+
+            if (tabId === 'standings') renderStandings();
+            if (tabId === 'scorers') renderScorers();
+        }
+
+        function toggleAdminModal() {
+            const modal = document.getElementById('adminModal');
+            if (isAdminLoggedIn) {
+                isAdminLoggedIn = false;
+                localStorage.setItem('fcm_admin_auth', 'false');
+                updateAdminUI();
+                showToast('تم تسجيل الخروج من لوحة التحكم');
+                switchTab('matches');
+            } else {
+                modal.classList.toggle('hidden');
+            }
+        }
+
+        function handleAdminLogin(e) {
+            e.preventDefault();
+            const pass = document.getElementById('adminPasswordInput').value;
+            if (pass === ADMIN_PASSWORD_HASH) {
+                isAdminLoggedIn = true;
+                localStorage.setItem('fcm_admin_auth', 'true');
+                updateAdminUI();
+                document.getElementById('adminModal').classList.add('hidden');
+                document.getElementById('adminPasswordInput').value = '';
+                showToast('تم دخول الأدمن بنجاح 👑');
+            } else {
+                showToast('كلمة المرور غير صحيحة!', 'fa-triangle-exclamation');
+            }
+        }
+
+        function updateAdminUI() {
+            const btnText = document.getElementById('adminBtnText');
+            const authBtn = document.getElementById('adminAuthBtn');
+            const adminTabs = document.querySelectorAll('.admin-only-tab');
+
+            if (isAdminLoggedIn) {
+                btnText.innerText = 'لوحة الأدمن (خروج)';
+                authBtn.classList.add('bg-gold', 'text-white');
+                authBtn.classList.remove('bg-amber-50/50', 'text-gold-dark');
+                adminTabs.forEach(tab => tab.classList.remove('hidden'));
+            } else {
+                btnText.innerText = 'دخول الأدمن';
+                authBtn.classList.remove('bg-gold', 'text-white');
+                authBtn.classList.add('bg-amber-50/50', 'text-gold-dark');
+                adminTabs.forEach(tab => tab.classList.add('hidden'));
+            }
+            renderPlayers();
+            renderMatches();
+        }
+
+        function renderPlayers() {
+            const container = document.getElementById('playersGrid');
+            if (!container) return;
+
+            container.innerHTML = players.map(p => `
+                <div class="bg-white border border-slate-200 rounded-2xl p-4 flex items-center justify-between hover:border-gold/40 shadow-sm transition-all">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-2xl">
+                            ${p.avatar || '⚽'}
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <h4 class="font-bold text-slate-800 text-sm">${p.name}</h4>
+                                ${p.phone ? `
+                                    <a href="https://wa.me/${p.phone}" target="_blank" title="تواصل عبر الواتساب" class="text-emerald-500 hover:text-emerald-600 text-xs">
+                                        <i class="fa-brands fa-whatsapp text-sm"></i>
+                                    </a>
+                                ` : ''}
+                            </div>
+                            <p class="text-xs text-gold-dark font-semibold">${p.team}</p>
+                        </div>
+                    </div>
+                    ${isAdminLoggedIn ? `
+                        <div class="flex items-center gap-1">
+                            <button onclick="editPlayer('${p.id}')" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 hover:text-gold flex items-center justify-center">
+                                <i class="fa-solid fa-pen text-xs"></i>
+                            </button>
+                            <button onclick="deletePlayer('${p.id}')" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 hover:text-red-500 flex items-center justify-center">
+                                <i class="fa-solid fa-trash text-xs"></i>
+                            </button>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function openPlayerModal(playerId = null) {
+            if (!isAdminLoggedIn) return;
+
+            const modal = document.getElementById('playerModal');
+            const title = document.getElementById('playerModalTitle');
+            const idInput = document.getElementById('modalPlayerId');
+            const nameInput = document.getElementById('playerNameInput');
+            const teamInput = document.getElementById('playerTeamInput');
+            const phoneInput = document.getElementById('playerPhoneInput');
+            const avatarInput = document.getElementById('playerAvatarInput');
+
+            if (playerId) {
+                const player = players.find(p => p.id === playerId);
+                title.innerText = 'تعديل بيانات اللاعب';
+                idInput.value = player.id;
+                nameInput.value = player.name;
+                teamInput.value = player.team;
+                phoneInput.value = player.phone || '';
+                avatarInput.value = player.avatar || '👑';
+            } else {
+                title.innerText = 'إضافة لاعب جديد';
+                idInput.value = '';
+                nameInput.value = '';
+                teamInput.value = '';
+                phoneInput.value = '';
+                avatarInput.value = '👑';
+            }
+            modal.classList.remove('hidden');
+        }
+
+        function closePlayerModal() {
+            document.getElementById('playerModal').classList.add('hidden');
+        }
+
+        function savePlayer(e) {
+            e.preventDefault();
+            const id = document.getElementById('modalPlayerId').value;
+            const name = document.getElementById('playerNameInput').value;
+            const team = document.getElementById('playerTeamInput').value;
+            const phone = document.getElementById('playerPhoneInput').value.trim();
+            const avatar = document.getElementById('playerAvatarInput').value || '⚽';
+
+            if (id) {
+                const player = players.find(p => p.id === id);
+                if (player) {
+                    player.name = name;
+                    player.team = team;
+                    player.phone = phone;
+                    player.avatar = avatar;
+                }
+                showToast('تم تعديل بيانات المتسابق');
+            } else {
+                const newPlayer = {
+                    id: Date.now().toString(),
+                    name,
+                    team,
+                    phone,
+                    avatar
+                };
+                players.push(newPlayer);
+                showToast('تمت إضافة المتسابق بنجاح');
+            }
+            saveState();
+            renderPlayers();
+            closePlayerModal();
+        }
+
+        function editPlayer(id) {
+            openPlayerModal(id);
+        }
+
+        function deletePlayer(id) {
+            if (!confirm('هل أنت تأكد من حذف هذا المتسابق؟')) return;
+            players = players.filter(p => p.id !== id);
+            saveState();
+            renderPlayers();
+            showToast('تم حذف المتسابق');
+        }
+
+        function generateDraw(type, quiet = false) {
+            if (!quiet && !isAdminLoggedIn) {
+                showToast('إجراء القرعة متاح فقط للأدمن!', 'fa-lock');
+                return;
+            }
+
+            if (players.length < 2) {
+                showToast('يجب وجود متسابقين اثنين على الأقل!', 'fa-triangle-exclamation');
+                return;
+            }
+
+            const shuffled = [...players].sort(() => 0.5 - Math.random());
+            matches = [];
+
+            if (type === 'LEAGUE') {
+                const n = shuffled.length;
+                let roundCount = 1;
+
+                for (let i = 0; i < n; i++) {
+                    for (let j = i + 1; j < n; j++) {
+                        // Leg 1
+                        matches.push({
+                            id: `m_${Date.now()}_${i}_${j}_1`,
+                            round: `الجولة ${roundCount}`,
+                            roundNum: roundCount,
+                            homeId: shuffled[i].id,
+                            awayId: shuffled[j].id,
+                            homeScore: null,
+                            awayScore: null,
+                            played: false,
+                            scorers: []
+                        });
+
+                        // Leg 2
+                        matches.push({
+                            id: `m_${Date.now()}_${i}_${j}_2`,
+                            round: `الجولة ${roundCount + 1}`,
+                            roundNum: roundCount + 1,
+                            homeId: shuffled[j].id,
+                            awayId: shuffled[i].id,
+                            homeScore: null,
+                            awayScore: null,
+                            played: false,
+                            scorers: []
+                        });
+                        roundCount += 2;
+                    }
+                }
+            } else if (type === 'R16' || type === 'R32' || type === 'PLAYOFFS') {
+                const pairsCount = Math.floor(shuffled.length / 2);
+                const titleMap = {
+                    'R16': 'دور الـ 16',
+                    'R32': 'دور الـ 32',
+                    'PLAYOFFS': 'الملحق التمهيدي'
+                };
+                const roundTitle = titleMap[type];
+
+                for (let i = 0; i < pairsCount; i++) {
+                    const p1 = shuffled[i * 2];
+                    const p2 = shuffled[i * 2 + 1];
+
+                    matches.push({
+                        id: `m_${Date.now()}_${i}_1`,
+                        round: `${roundTitle} - الذهاب`,
+                        roundNum: 1,
+                        homeId: p1.id,
+                        awayId: p2.id,
+                        homeScore: null,
+                        awayScore: null,
+                        played: false,
+                        scorers: []
+                    });
+
+                    matches.push({
+                        id: `m_${Date.now()}_${i}_2`,
+                        round: `${roundTitle} - الإياب`,
+                        roundNum: 2,
+                        homeId: p2.id,
+                        awayId: p1.id,
+                        homeScore: null,
+                        awayScore: null,
+                        played: false,
+                        scorers: []
+                    });
+                }
+            }
+
+            saveState();
+            populateRoundFilter();
+            renderMatches();
+            if (!quiet) {
+                showToast('تم إجراء القرعة وتحديد جميع المواجهات 🎲');
+                switchTab('matches');
+            }
+        }
+
+        function populateRoundFilter() {
+            const select = document.getElementById('roundFilterSelect');
+            if (!select) return;
+
+            const rounds = [...new Set(matches.map(m => m.round))];
+            select.innerHTML = '<option value="ALL">جميع الجولات / الأدوار</option>' + 
+                rounds.map(r => `<option value="${r}">${r}</option>`).join('');
+        }
+
+        function renderMatches() {
+            const container = document.getElementById('matchesContainer');
+            const filterValue = document.getElementById('roundFilterSelect')?.value || 'ALL';
+
+            if (!container) return;
+
+            let filtered = matches;
+            if (filterValue !== 'ALL') {
+                filtered = matches.filter(m => m.round === filterValue);
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 bg-white rounded-2xl border border-slate-200">
+                        <i class="fa-solid fa-folder-open text-3xl text-slate-300 mb-2"></i>
+                        <p class="text-slate-500 font-bold">لا توجد مباريات جارية حالياً</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const grouped = {};
+            filtered.forEach(m => {
+                if (!grouped[m.round]) grouped[m.round] = [];
+                grouped[m.round].push(m);
+            });
+
+            container.innerHTML = Object.keys(grouped).map(roundKey => {
+                const roundMatches = grouped[roundKey];
+                return `
+                    <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                        <div class="bg-slate-50 px-4 py-3 border-b border-slate-200 flex items-center justify-between">
+                            <span class="font-black text-sm text-gold-dark flex items-center gap-2">
+                                <i class="fa-solid fa-trophy text-xs"></i> ${roundKey}
+                            </span>
+                            <span class="text-xs text-slate-400 font-bold">${roundMatches.length} مباراة</span>
+                        </div>
+
+                        <div class="divide-y divide-slate-100">
+                            ${roundMatches.map(m => {
+                                const home = players.find(p => p.id === m.homeId) || { name: 'غير معروف', team: '-', avatar: '⚽' };
+                                const away = players.find(p => p.id === m.awayId) || { name: 'غير معروف', team: '-', avatar: '⚽' };
+
+                                return `
+                                    <div class="p-4 flex flex-col sm:flex-row items-center justify-between gap-4 hover:bg-slate-50 transition-all">
+                                        <!-- Home Player -->
+                                        <div class="flex items-center gap-3 w-full sm:w-2/5 justify-start">
+                                            <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-xl border border-slate-200">
+                                                ${home.avatar || '👑'}
+                                            </div>
+                                            <div class="truncate">
+                                                <div class="flex items-center gap-2">
+                                                    <h4 class="font-bold text-sm text-slate-800 truncate">${home.name}</h4>
+                                                    ${home.phone ? `<a href="https://wa.me/${home.phone}" target="_blank" class="text-emerald-500 text-xs"><i class="fa-brands fa-whatsapp"></i></a>` : ''}
+                                                </div>
+                                                <p class="text-xs text-slate-400 truncate">${home.team}</p>
+                                            </div>
+                                        </div>
+
+                                        <!-- Score Box / Action Button -->
+                                        <div class="flex items-center justify-center gap-3 w-full sm:w-1/5 py-2 sm:py-0 border-y sm:border-y-0 border-slate-100 my-2 sm:my-0">
+                                            ${m.played ? `
+                                                <div class="flex items-center gap-2 bg-slate-100 px-4 py-1.5 rounded-xl border border-gold/40">
+                                                    <span class="font-black text-xl text-gold-dark">${m.homeScore}</span>
+                                                    <span class="text-xs text-slate-400 font-bold">-</span>
+                                                    <span class="font-black text-xl text-gold-dark">${m.awayScore}</span>
+                                                </div>
+                                            ` : `
+                                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-slate-100 text-slate-400 border border-slate-200">قادمة</span>
+                                            `}
+
+                                            ${isAdminLoggedIn ? `
+                                                <button onclick="openMatchModal('${m.id}')" class="px-3 py-1.5 rounded-lg bg-gold/10 hover:bg-gold text-gold-dark hover:text-white border border-gold/30 text-xs font-bold transition-all">
+                                                    ${m.played ? '<i class="fa-solid fa-pen"></i>' : 'تعديل النتيجة'}
+                                                </button>
+                                            ` : ''}
+                                        </div>
+
+                                        <!-- Away Player -->
+                                        <div class="flex items-center gap-3 w-full sm:w-2/5 justify-end text-left sm:text-right">
+                                            <div class="truncate">
+                                                <div class="flex items-center justify-end gap-2">
+                                                    ${away.phone ? `<a href="https://wa.me/${away.phone}" target="_blank" class="text-emerald-500 text-xs"><i class="fa-brands fa-whatsapp"></i></a>` : ''}
+                                                    <h4 class="font-bold text-sm text-slate-800 truncate">${away.name}</h4>
+                                                </div>
+                                                <p class="text-xs text-slate-400 truncate">${away.team}</p>
+                                            </div>
+                                            <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-xl border border-slate-200">
+                                                ${away.avatar || '⚽'}
+                                            </div>
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        let currentMatchScorers = [];
+
+        function openMatchModal(matchId) {
+            if (!isAdminLoggedIn) return;
+
+            const match = matches.find(m => m.id === matchId);
+            if (!match) return;
+
+            const home = players.find(p => p.id === match.homeId);
+            const away = players.find(p => p.id === match.awayId);
+
+            document.getElementById('modalMatchId').value = match.id;
+            document.getElementById('modalHomeAvatar').innerText = home?.avatar || '⚽';
+            document.getElementById('modalHomeName').innerText = home?.name || 'الفريق 1';
+            document.getElementById('modalHomeTeam').innerText = home?.team || '';
+            document.getElementById('modalHomeScore').value = match.played ? match.homeScore : 0;
+
+            document.getElementById('modalAwayAvatar').innerText = away?.avatar || '⚽';
+            document.getElementById('modalAwayName').innerText = away?.name || 'الفريق 2';
+            document.getElementById('modalAwayTeam').innerText = away?.team || '';
+            document.getElementById('modalAwayScore').value = match.played ? match.awayScore : 0;
+
+            document.getElementById('homeScorerLabel').innerText = `مسجلو ${home?.name}`;
+            document.getElementById('awayScorerLabel').innerText = `مسجلو ${away?.name}`;
+
+            currentMatchScorers = match.scorers || [];
+            renderModalScorers(home?.id, away?.id);
+
+            document.getElementById('matchModal').classList.remove('hidden');
+        }
+
+        function closeMatchModal() {
+            document.getElementById('matchModal').classList.add('hidden');
+        }
+
+        function renderModalScorers(homeId, awayId) {
+            const homeContainer = document.getElementById('homeScorersContainer');
+            const awayContainer = document.getElementById('awayScorersContainer');
+
+            homeContainer.innerHTML = '';
+            awayContainer.innerHTML = '';
+
+            currentMatchScorers.forEach((s, idx) => {
+                const isHome = s.teamType === 'home';
+                const rowHTML = `
+                    <div class="flex items-center gap-2">
+                        <input type="text" placeholder="اسم المسجل" value="${s.name || ''}" onchange="updateScorerData(${idx}, 'name', this.value)" class="w-full bg-white border border-slate-300 text-xs rounded-lg p-2 text-slate-800 focus:outline-none focus:border-gold">
+                        <input type="number" min="1" value="${s.goals || 1}" onchange="updateScorerData(${idx}, 'goals', this.value)" class="w-12 bg-white border border-slate-300 text-xs rounded-lg p-2 text-gold-dark font-bold text-center focus:outline-none">
+                        <button type="button" onclick="removeScorerRow(${idx})" class="text-red-500 hover:text-red-600 p-1">
+                            <i class="fa-solid fa-circle-xmark text-sm"></i>
+                        </button>
+                    </div>
+                `;
+
+                if (isHome) homeContainer.innerHTML += rowHTML;
+                else awayContainer.innerHTML += rowHTML;
+            });
+        }
+
+        function addScorerRow(teamType) {
+            currentMatchScorers.push({ teamType, name: '', goals: 1 });
+            const matchId = document.getElementById('modalMatchId').value;
+            const match = matches.find(m => m.id === matchId);
+            renderModalScorers(match?.homeId, match?.awayId);
+        }
+
+        function removeScorerRow(idx) {
+            currentMatchScorers.splice(idx, 1);
+            const matchId = document.getElementById('modalMatchId').value;
+            const match = matches.find(m => m.id === matchId);
+            renderModalScorers(match?.homeId, match?.awayId);
+        }
+
+        function updateScorerData(idx, key, val) {
+            if (key === 'goals') val = parseInt(val) || 1;
+            currentMatchScorers[idx][key] = val;
+        }
+
+        function saveMatchResult(e) {
+            e.preventDefault();
+            const matchId = document.getElementById('modalMatchId').value;
+            const homeScore = parseInt(document.getElementById('modalHomeScore').value) || 0;
+            const awayScore = parseInt(document.getElementById('modalAwayScore').value) || 0;
+
+            const match = matches.find(m => m.id === matchId);
+            if (match) {
+                match.homeScore = homeScore;
+                match.awayScore = awayScore;
+                match.played = true;
+                match.scorers = currentMatchScorers.filter(s => s.name.trim() !== '');
+            }
+
+            recalculateTopScorers();
+            saveState();
+            renderMatches();
+            closeMatchModal();
+            showToast('تم تسجيل حفظ نتيجة المباراة ⚽');
+        }
+
+        function recalculateTopScorers() {
+            scorersData = {};
+            matches.forEach(m => {
+                if (m.played && m.scorers) {
+                    m.scorers.forEach(s => {
+                        const nameKey = s.name.trim();
+                        if (nameKey) {
+                            scorersData[nameKey] = (scorersData[nameKey] || 0) + (parseInt(s.goals) || 1);
+                        }
+                    });
+                }
+            });
+        }
+
+        function renderStandings() {
+            const tbody = document.getElementById('standingsTableBody');
+            if (!tbody) return;
+
+            const stats = {};
+            players.forEach(p => {
+                stats[p.id] = {
+                    player: p,
+                    played: 0,
+                    won: 0,
+                    drawn: 0,
+                    lost: 0,
+                    gf: 0,
+                    ga: 0,
+                    gd: 0,
+                    pts: 0,
+                    headToHead: {}
+                };
+            });
+
+            matches.forEach(m => {
+                if (m.played && stats[m.homeId] && stats[m.awayId]) {
+                    const h = stats[m.homeId];
+                    const a = stats[m.awayId];
+
+                    h.played++;
+                    a.played++;
+
+                    h.gf += m.homeScore;
+                    h.ga += m.awayScore;
+                    a.gf += m.awayScore;
+                    a.ga += m.homeScore;
+
+                    if (!h.headToHead[m.awayId]) h.headToHead[m.awayId] = 0;
+                    if (!a.headToHead[m.homeId]) a.headToHead[m.homeId] = 0;
+
+                    if (m.homeScore > m.awayScore) {
+                        h.won++;
+                        h.pts += 3;
+                        h.headToHead[m.awayId] += 3;
+                        a.lost++;
+                    } else if (m.homeScore < m.awayScore) {
+                        a.won++;
+                        a.pts += 3;
+                        a.headToHead[m.homeId] += 3;
+                        h.lost++;
+                    } else {
+                        h.drawn++;
+                        a.drawn++;
+                        h.pts += 1;
+                        a.pts += 1;
+                        h.headToHead[m.awayId] += 1;
+                        a.headToHead[m.homeId] += 1;
+                    }
+                }
+            });
+
+            Object.values(stats).forEach(s => {
+                s.gd = s.gf - s.ga;
+            });
+
+            const sorted = Object.values(stats).sort((a, b) => {
+                if (b.pts !== a.pts) return b.pts - a.pts;
+
+                const h2hPtsA = a.headToHead[b.player.id] || 0;
+                const h2hPtsB = b.headToHead[a.player.id] || 0;
+                if (h2hPtsB !== h2hPtsA) return h2hPtsB - h2hPtsA;
+
+                if (b.gd !== a.gd) return b.gd - a.gd;
+                return b.gf - a.gf;
+            });
+
+            tbody.innerHTML = sorted.map((s, index) => {
+                const rank = index + 1;
+                let rankBadge = `<span class="text-xs font-bold text-slate-400">${rank}</span>`;
+                if (rank === 1) rankBadge = `<span class="w-6 h-6 rounded-full bg-gold text-white font-black text-xs inline-flex items-center justify-center shadow-sm">1</span>`;
+                if (rank === 2) rankBadge = `<span class="w-6 h-6 rounded-full bg-slate-300 text-slate-700 font-black text-xs inline-flex items-center justify-center">2</span>`;
+                if (rank === 3) rankBadge = `<span class="w-6 h-6 rounded-full bg-amber-700 text-white font-black text-xs inline-flex items-center justify-center">3</span>`;
+
+                return `
+                    <tr class="hover:bg-slate-50 transition-all">
+                        <td class="p-4 text-center">${rankBadge}</td>
+                        <td class="p-4">
+                            <div class="flex items-center gap-3">
+                                <span class="text-xl">${s.player.avatar || '👑'}</span>
+                                <div>
+                                    <div class="font-bold text-slate-800 text-sm">${s.player.name}</div>
+                                    <div class="text-xs text-slate-400">${s.player.team}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="p-4 text-center">
+                            ${s.player.phone ? `
+                                <a href="https://wa.me/${s.player.phone}" target="_blank" class="inline-flex items-center justify-center w-8 h-8 rounded-full bg-emerald-50 text-emerald-600 hover:bg-emerald-500 hover:text-white transition-all">
+                                    <i class="fa-brands fa-whatsapp text-base"></i>
+                                </a>
+                            ` : '-'}
+                        </td>
+                        <td class="p-4 text-center font-semibold text-slate-600">${s.played}</td>
+                        <td class="p-4 text-center text-emerald-600 font-semibold">${s.won}</td>
+                        <td class="p-4 text-center text-slate-400 font-semibold">${s.drawn}</td>
+                        <td class="p-4 text-center text-rose-500 font-semibold">${s.lost}</td>
+                        <td class="p-4 text-center hidden sm:table-cell text-slate-600">${s.gf}</td>
+                        <td class="p-4 text-center hidden sm:table-cell text-slate-400">${s.ga}</td>
+                        <td class="p-4 text-center font-bold ${s.gd > 0 ? 'text-emerald-600' : s.gd < 0 ? 'text-rose-500' : 'text-slate-400'}">
+                            ${s.gd > 0 ? '+' + s.gd : s.gd}
+                        </td>
+                        <td class="p-4 text-center font-black text-base text-gold-dark">${s.pts}</td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function renderScorers() {
+            recalculateTopScorers();
+
+            const podiumContainer = document.getElementById('scorersPodium');
+            const tbody = document.getElementById('scorersTableBody');
+            if (!tbody || !podiumContainer) return;
+
+            const sortedScorers = Object.entries(scorersData)
+                .map(([name, goals]) => ({ name, goals }))
+                .sort((a, b) => b.goals - a.goals);
+
+            if (sortedScorers.length === 0) {
+                podiumContainer.innerHTML = '';
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="3" class="p-8 text-center text-slate-400 font-bold">لم يتم تسجيل أهداف حتى الآن</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            const top1 = sortedScorers[0];
+            const top2 = sortedScorers[1];
+            const top3 = sortedScorers[2];
+
+            podiumContainer.innerHTML = `
+                ${top2 ? `
+                    <div class="bg-white border border-slate-200 rounded-2xl p-4 text-center flex flex-col items-center justify-center order-2 sm:order-1 shadow-sm">
+                        <span class="text-2xl mb-1">🥈</span>
+                        <h4 class="font-bold text-slate-800 text-sm">${top2.name}</h4>
+                        <span class="text-xs text-gold-dark font-bold mt-1">${top2.goals} أهداف</span>
+                    </div>
+                ` : '<div class="hidden sm:block"></div>'}
+
+                ${top1 ? `
+                    <div class="bg-gradient-to-b from-amber-50 to-white border-2 border-gold rounded-2xl p-6 text-center flex flex-col items-center justify-center shadow-lg order-1 sm:order-2 transform sm:-translate-y-2">
+                        <span class="text-4xl mb-2">👑</span>
+                        <h4 class="font-black text-lg text-gold-dark">${top1.name}</h4>
+                        <span class="text-sm font-extrabold text-white mt-1 bg-gold px-3 py-1 rounded-full border border-gold-dark">${top1.goals} هدفاً</span>
+                    </div>
+                ` : ''}
+
+                ${top3 ? `
+                    <div class="bg-white border border-slate-200 rounded-2xl p-4 text-center flex flex-col items-center justify-center order-3 shadow-sm">
+                        <span class="text-2xl mb-1">🥉</span>
+                        <h4 class="font-bold text-slate-800 text-sm">${top3.name}</h4>
+                        <span class="text-xs text-gold-dark font-bold mt-1">${top3.goals} أهداف</span>
+                    </div>
+                ` : '<div class="hidden sm:block"></div>'}
+            `;
+
+            tbody.innerHTML = sortedScorers.map((s, index) => `
+                <tr class="hover:bg-slate-50 transition-all">
+                    <td class="p-4 text-center font-bold text-xs text-gold-dark">#${index + 1}</td>
+                    <td class="p-4 font-bold text-slate-800 text-sm">${s.name}</td>
+                    <td class="p-4 text-center font-black text-base text-gold-dark">${s.goals}</td>
+                </tr>
+            `).join('');
+        }
+    </script>
+</body>
+</html>
